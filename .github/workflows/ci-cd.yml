@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up Git
         run: |
@@ -20,16 +20,17 @@ jobs:
 
       - name: Get Committer Information
         id: commit_info
-        run: echo "::set-output name=author::$(git log -1 --pretty=format:'%an')"
+        run: |
+          echo "author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_ENV
 
       - name: Create Release
         id: create_release
         run: |
           branch=$(echo "${GITHUB_REF#refs/heads/}")
           version=$(echo "v$(date +'%Y.%m.%d.%H%M%S')-${{ steps.commit_info.outputs.author }}-${branch}")
+          echo "version=${version}" >> $GITHUB_ENV
           git tag $version
           git push origin $version
-          echo "::set-output name=version::$version"
 
   deploy:
     runs-on: ubuntu-latest
