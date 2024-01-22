@@ -9,13 +9,6 @@ jobs:
   create_release:
     runs-on: ubuntu-latest
 
-    outputs:
-      # Declare an output named 'author' to pass data between steps
-      id: commit_info
-      set-env:
-        # Set an environment variable 'AUTHOR' to make it accessible to subsequent steps
-        AUTHOR: ${{ steps.commit_info.outputs.author }}
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -27,19 +20,16 @@ jobs:
 
       - name: Get Committer Information
         id: commit_info
-        run: |
-          # Assuming commit_info is an object with an 'author' property
-          echo "author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_ENV
-          echo "author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_PATH/commit_info
+        run: echo "::set-output name=author::$(git log -1 --pretty=format:'%an')"
 
       - name: Create Release
         id: create_release
         run: |
           branch=$(echo "${GITHUB_REF#refs/heads/}")
-          version=$(echo "v$(date +'%Y.%m.%d.%H%M%S')-${{ env.AUTHOR }}-${branch}")
-          echo "version=${version}" >> $GITHUB_ENV
+          version=$(echo "v$(date +'%Y.%m.%d.%H%M%S')-${{ steps.commit_info.outputs.author }}-${branch}")
           git tag $version
           git push origin $version
+          echo "::set-output name=version::$version"
 
   deploy:
     runs-on: ubuntu-latest
