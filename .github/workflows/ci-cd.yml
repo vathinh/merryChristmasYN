@@ -28,6 +28,7 @@ jobs:
       - name: Get Committer Information
         id: commit_info
         run: |
+          # Assuming commit_info is an object with an 'author' property
           echo "author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_ENV
           echo "author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_PATH/commit_info
 
