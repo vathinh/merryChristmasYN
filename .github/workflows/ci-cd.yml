@@ -56,12 +56,13 @@ jobs:
     needs: deploy
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - name: Get Repository Name
+        run: echo "::set-output name=repo_name::$(basename $GITHUB_REPOSITORY)"
+        id: repo_name
 
       - name: Update README
         run: |
-          echo "Deployed GitHub Pages: ${{ needs.deploy.outputs.url }}" >> README.md
+          echo "Deployed GitHub Pages: https://${{ steps.repo_name.outputs.repo_name }}.github.io/${GITHUB_REPOSITORY#*/}/" >> README.md
           git add README.md
           git config --global user.email "tv.thinh2000@gmail.com"
           git config --global user.name "Van Thinh"
